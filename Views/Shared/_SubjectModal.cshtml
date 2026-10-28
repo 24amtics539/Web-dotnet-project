@@ -1,0 +1,56 @@
+<!-- Subject Modal (Add & Edit Subject) -->
+<div class="modal-backdrop" id="subject-modal" role="dialog" aria-modal="true" aria-labelledby="subject-modal-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2 class="modal-title" id="subject-modal-title">Add Academic Subject</h2>
+      <button type="button" class="modal-close-btn" onclick="closeSubjectModal()" aria-label="Close modal">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <form id="subject-modal-form" method="POST" action="/subjects/create">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="subject_id" id="modal-subject-id" value="">
+
+      <div class="form-group">
+        <label for="modal-subject-name" class="form-label">Subject Name <span style="color: var(--color-danger)">*</span></label>
+        <input type="text" name="subject_name" id="modal-subject-name" class="form-input" placeholder="e.g. Distributed Operating Systems" required>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label for="modal-subject-code" class="form-label">Subject Code</label>
+          <input type="text" name="subject_code" id="modal-subject-code" class="form-input" placeholder="e.g. CS401" style="text-transform: uppercase;">
+        </div>
+
+        <div class="form-group">
+          <label for="modal-subject-sem" class="form-label">Semester (1–12) <span style="color: var(--color-danger)">*</span></label>
+          <input type="number" name="semester" id="modal-subject-sem" class="form-input" min="1" max="12" value="5" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="modal-subject-color" class="form-label">Accent Color Theme</label>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <input type="color" name="color" id="modal-subject-color" value="#B98AFF" style="width: 44px; height: 40px; border: none; border-radius: 8px; background: transparent; cursor: pointer;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn-color-swatch" data-color="#B98AFF" style="width: 26px; height: 26px; border-radius: 6px; background-color: #B98AFF; border: 1px solid #ffffff44; cursor: pointer;"></button>
+            <button type="button" class="btn-color-swatch" data-color="#8B5CF6" style="width: 26px; height: 26px; border-radius: 6px; background-color: #8B5CF6; border: 1px solid #ffffff44; cursor: pointer;"></button>
+            <button type="button" class="btn-color-swatch" data-color="#38BDF8" style="width: 26px; height: 26px; border-radius: 6px; background-color: #38BDF8; border: 1px solid #ffffff44; cursor: pointer;"></button>
+            <button type="button" class="btn-color-swatch" data-color="#EC4899" style="width: 26px; height: 26px; border-radius: 6px; background-color: #EC4899; border: 1px solid #ffffff44; cursor: pointer;"></button>
+            <button type="button" class="btn-color-swatch" data-color="#F59E0B" style="width: 26px; height: 26px; border-radius: 6px; background-color: #F59E0B; border: 1px solid #ffffff44; cursor: pointer;"></button>
+            <button type="button" class="btn-color-swatch" data-color="#10B981" style="width: 26px; height: 26px; border-radius: 6px; background-color: #10B981; border: 1px solid #ffffff44; cursor: pointer;"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeSubjectModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-subject">
+          <i data-lucide="check"></i>
+          <span id="modal-subject-submit-text">Save Subject</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,188 @@
+@model ProgressViewModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Progress & Academic Analytics";
+    var a = Model.Analytics;
+    var period = Model.CurrentPeriod;
+}
+
+<div class="subpage-grid-layout">
+  <!-- Shared Sidebar Navigation -->
+  <aside class="subpage-sidebar-col">
+    <partial name="_Sidebar" />
+  </aside>
+
+  <!-- Main Analytics Workspace -->
+  <section class="subpage-main-col">
+    <!-- Header -->
+    <div class="page-header-row">
+      <div class="page-title-group">
+        <h1>Progress &amp; Analytics</h1>
+        <p>Comprehensive academic performance metrics, completion trends, and study insights</p>
+      </div>
+
+      <div class="analytics-actions-toolbar">
+        <!-- Period Filters -->
+        <div class="quick-filter-pills">
+          <button type="button" class="quick-pill @(period == "7d" ? "active" : "")" onclick="switchAnalyticsPeriod('7d')">Last 7 Days</button>
+          <button type="button" class="quick-pill @(period == "30d" ? "active" : "")" onclick="switchAnalyticsPeriod('30d')">Last 30 Days</button>
+          <button type="button" class="quick-pill @(period == "semester" ? "active" : "")" onclick="switchAnalyticsPeriod('semester')">Semester</button>
+          <button type="button" class="quick-pill @(period == "all" || string.IsNullOrEmpty(period) ? "active" : "")" onclick="switchAnalyticsPeriod('all')">All Time</button>
+        </div>
+
+        <!-- Export PDF Button -->
+        <div class="analytics-export-group">
+          <a href="/progress/export.pdf" class="btn btn-primary" id="btn-export-pdf" title="Download official PDF report">
+            <i data-lucide="file-text"></i>
+            <span>Export PDF</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Metrics Cards Grid -->
+    <div class="analytics-stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <span class="stat-card-label">Total Tasks</span>
+          <div class="stat-icon-wrapper"><i data-lucide="list"></i></div>
+        </div>
+        <div class="stat-card-value" id="stat-total-tasks">@a.Summary.TotalTasks</div>
+        <div class="stat-card-subtext">Cumulative tracked records</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <span class="stat-card-label">Completed</span>
+          <div class="stat-icon-wrapper" style="color: var(--color-success);"><i data-lucide="check-circle-2"></i></div>
+        </div>
+        <div class="stat-card-value" style="color: var(--color-success);" id="stat-completed-tasks">@a.Summary.CompletedTasks</div>
+        <div class="stat-card-subtext" id="stat-completion-rate">@a.Summary.CompletionRate% overall rate</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <span class="stat-card-label">Pending Deadlines</span>
+          <div class="stat-icon-wrapper" style="color: var(--accent-lavender);"><i data-lucide="clock"></i></div>
+        </div>
+        <div class="stat-card-value" id="stat-pending-tasks">@a.Summary.PendingTasks</div>
+        <div class="stat-card-subtext">Active academic tasks</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <span class="stat-card-label">Overdue Tasks</span>
+          <div class="stat-icon-wrapper" style="color: @(a.Summary.OverdueTasks > 0 ? "var(--color-danger)" : "var(--color-success)");">
+            <i data-lucide="alert-circle"></i>
+          </div>
+        </div>
+        <div class="stat-card-value" style="color: @(a.Summary.OverdueTasks > 0 ? "var(--color-danger)" : "var(--text-primary)");" id="stat-overdue-tasks">
+          @a.Summary.OverdueTasks
+        </div>
+        <div class="stat-card-subtext">Past due date</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <span class="stat-card-label">Top Course</span>
+          <div class="stat-icon-wrapper" style="color: #fbbf24;"><i data-lucide="award"></i></div>
+        </div>
+        <div class="stat-card-value" style="font-size: 1.35rem;" id="stat-best-subject">@a.Summary.BestSubject</div>
+        <div class="stat-card-subtext" id="stat-best-rate">@a.Summary.BestSubjectRate% completed</div>
+      </div>
+    </div>
+
+    <!-- Rule-Based Academic Insights Panel -->
+    <div class="insights-panel-card">
+      <div class="panel-header" style="margin-bottom: 16px;">
+        <div class="panel-title-group">
+          <h2 class="panel-title">
+            <i data-lucide="sparkles" style="color: var(--accent-lavender);"></i>
+            Academic Insights &amp; Observations
+          </h2>
+          <span class="panel-subtitle">Calculated from your current semester deadline history</span>
+        </div>
+      </div>
+
+      <div class="insights-list" id="insights-container">
+        @foreach (var ins in a.Insights)
+        {
+          <div class="insight-item @ins.Type">
+            <div class="insight-icon-box">
+              <i data-lucide="@ins.Icon"></i>
+            </div>
+            <div>
+              <div class="insight-title">@ins.Title</div>
+              <div class="insight-text">@ins.Text</div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Analytics Charts Suite (2x2 Grid) -->
+    <div class="analytics-charts-grid">
+      <!-- 1. Task Status Doughnut -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <h3 class="panel-title" style="font-size: 1.05rem;">Task Status Distribution</h3>
+            <span class="panel-subtitle">Completed, In Progress, Pending &amp; Overdue</span>
+          </div>
+        </div>
+        <div style="height: 260px; position: relative;">
+          <canvas id="chartStatusDist"></canvas>
+        </div>
+      </div>
+
+      <!-- 2. Tasks by Course Grouped Bar -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <h3 class="panel-title" style="font-size: 1.05rem;">Course Workload Breakdown</h3>
+            <span class="panel-subtitle">Completed vs Incomplete tasks per subject</span>
+          </div>
+        </div>
+        <div style="height: 260px; position: relative;">
+          <canvas id="chartSubjectDist"></canvas>
+        </div>
+      </div>
+
+      <!-- 3. Cumulative Completion Trend -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <h3 class="panel-title" style="font-size: 1.05rem;">Completion Trend (Last 14 Days)</h3>
+            <span class="panel-subtitle">Cumulative tasks completed over time</span>
+          </div>
+        </div>
+        <div style="height: 260px; position: relative;">
+          <canvas id="chartTrend"></canvas>
+        </div>
+      </div>
+
+      <!-- 4. Task Category Breakdown -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <h3 class="panel-title" style="font-size: 1.05rem;">Academic Category Distribution</h3>
+            <span class="panel-subtitle">Assignments, Practicals, Exams &amp; Projects</span>
+          </div>
+        </div>
+        <div style="height: 260px; position: relative;">
+          <canvas id="chartTypeDist"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+@section Scripts {
+  <script src="~/js/progress.js" asp-append-version="true"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const analyticsData = @Html.Raw(JsonSerializer.Serialize(Model.Analytics));
+      initProgressCharts(analyticsData);
+    });
+  </script>
+}

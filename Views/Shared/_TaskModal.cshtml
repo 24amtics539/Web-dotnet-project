@@ -1,0 +1,97 @@
+@{
+    var globalSubjects = ViewBag.GlobalSubjects as List<SubjectDto> ?? new List<SubjectDto>();
+}
+
+<!-- Academic Task Modal (Create & Edit) -->
+<div class="modal-backdrop" id="task-modal" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2 class="modal-title" id="task-modal-title">New Academic Task</h2>
+      <button type="button" class="modal-close-btn" onclick="closeTaskModal()" aria-label="Close modal">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <form id="task-modal-form" method="POST" action="/tasks/create">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="task_id" id="modal-task-id" value="">
+
+      <div class="form-group">
+        <label for="modal-task-title" class="form-label">Task Title <span style="color: var(--color-danger)">*</span></label>
+        <input type="text" name="title" id="modal-task-title" class="form-input" placeholder="e.g. Implement Dijkstra Algorithm Lab" required>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label for="modal-task-subject" class="form-label">Subject <span style="color: var(--color-danger)">*</span></label>
+          <select name="subject_id" id="modal-task-subject" class="select-control form-input" required>
+            <option value="">Select subject...</option>
+            @foreach (var s in globalSubjects)
+            {
+              <option value="@s.Id">@s.SubjectName @(!string.IsNullOrEmpty(s.SubjectCode) ? $"({s.SubjectCode})" : "")</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-task-type" class="form-label">Category</label>
+          <select name="task_type" id="modal-task-type" class="select-control form-input">
+            <option value="Assignment">Assignment</option>
+            <option value="Practical">Practical</option>
+            <option value="Examination">Examination</option>
+            <option value="Project">Project</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label for="modal-task-priority" class="form-label">Priority</label>
+          <select name="priority" id="modal-task-priority" class="select-control form-input">
+            <option value="low">Low Priority</option>
+            <option value="medium" selected>Medium Priority</option>
+            <option value="high">High Priority</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-task-status" class="form-label">Status</label>
+          <select name="status" id="modal-task-status" class="select-control form-input">
+            <option value="pending" selected>Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 14px;">
+        <div class="form-group">
+          <label for="modal-task-date" class="form-label">Due Date <span style="color: var(--color-danger)">*</span></label>
+          <input type="date" name="due_date_only" id="modal-task-date" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-task-time" class="form-label">Due Time</label>
+          <input type="time" name="due_time_only" id="modal-task-time" class="form-input" value="23:59">
+        </div>
+      </div>
+
+      <!-- Combined due_date field submitted to server -->
+      <input type="hidden" name="due_date" id="modal-task-combined-due-date" value="">
+
+      <div class="form-group">
+        <label for="modal-task-desc" class="form-label">Description / Instructions</label>
+        <textarea name="description" id="modal-task-desc" class="form-input" rows="3" placeholder="Submission guidelines, syllabus topics, code repository link..."></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-task">
+          <i data-lucide="check"></i>
+          <span id="modal-submit-btn-text">Save Task</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

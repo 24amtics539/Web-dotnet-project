@@ -1,0 +1,112 @@
+@{
+    var userName = User.GetUserName();
+    var initials = "ST";
+    if (!string.IsNullOrWhiteSpace(userName))
+    {
+        var parts = userName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            initials = $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        else if (userName.Length >= 2)
+            initials = userName.Substring(0, 2).ToUpper();
+        else
+            initials = userName.ToUpper();
+    }
+
+    var globalSubjects = ViewBag.GlobalSubjects as List<SubjectDto> ?? new List<SubjectDto>();
+    var pendingCount = ViewBag.PendingTasksCount as int?;
+    var activeNav = ViewBag.ActiveNav as string ?? "";
+}
+
+<aside class="sidebar-panel">
+  <!-- Brand Header -->
+  <div class="sidebar-brand">
+    <div class="logo-badge">
+      <i data-lucide="calendar-check"></i>
+    </div>
+    <div>
+      <div class="logo-text">Campus<span class="brand-highlight">Deadline</span></div>
+      <div class="tagline">Academic Workspace</div>
+    </div>
+  </div>
+
+  <!-- User Profile Card -->
+  @if (User.Identity?.IsAuthenticated == true)
+  {
+    <div class="sidebar-profile">
+      <div class="profile-avatar">
+        @initials
+      </div>
+      <div class="profile-details">
+        <div class="profile-name" title="@userName">@userName</div>
+        <div class="profile-badge">
+          <i data-lucide="graduation-cap" style="width: 12px; height: 12px;"></i>
+          <span>Student</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav" aria-label="Main Navigation">
+    <a href="/dashboard" class="nav-link @(activeNav == "dashboard" ? "active" : "")">
+      <i data-lucide="layout-dashboard"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="/tasks" class="nav-link @(activeNav == "tasks" ? "active" : "")">
+      <i data-lucide="check-square"></i>
+      <span>My Tasks</span>
+      @if (pendingCount.HasValue && pendingCount.Value > 0)
+      {
+        <span class="nav-badge">@pendingCount.Value</span>
+      }
+    </a>
+
+    <a href="/calendar" class="nav-link @(activeNav == "calendar" ? "active" : "")">
+      <i data-lucide="calendar"></i>
+      <span>Calendar</span>
+    </a>
+
+    <a href="/subjects" class="nav-link @(activeNav == "subjects" ? "active" : "")">
+      <i data-lucide="book-open"></i>
+      <span>My Subjects</span>
+      @if (globalSubjects.Count > 0)
+      {
+        <span class="nav-badge">@globalSubjects.Count</span>
+      }
+    </a>
+
+    <a href="/progress" class="nav-link @(activeNav == "progress" ? "active" : "")">
+      <i data-lucide="bar-chart-2"></i>
+      <span>Progress &amp; Analytics</span>
+    </a>
+  </nav>
+
+  <!-- Quick Academic Stats -->
+  <div class="sidebar-quick-stats">
+    <div class="quick-stat-header">Academic Overview</div>
+    <div class="quick-stat-row">
+      <span class="quick-stat-label">
+        <i data-lucide="book" style="width: 14px; height: 14px;"></i> Subjects
+      </span>
+      <span class="quick-stat-val">@globalSubjects.Count</span>
+    </div>
+    <div class="quick-stat-row">
+      <span class="quick-stat-label">
+        <i data-lucide="clock" style="width: 14px; height: 14px;"></i> System
+      </span>
+      <span class="quick-stat-val" style="color: var(--color-success); font-size: 0.76rem;">● Online</span>
+    </div>
+  </div>
+
+  <!-- Logout / Session Control -->
+  <div class="sidebar-footer">
+    <form action="/logout" method="POST" class="logout-form">
+      @Html.AntiForgeryToken()
+      <button type="submit" class="btn-logout" id="btn-logout">
+        <i data-lucide="log-out"></i>
+        <span>Sign Out</span>
+      </button>
+    </form>
+  </div>
+</aside>

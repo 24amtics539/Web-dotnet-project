@@ -1,0 +1,158 @@
+@model SubjectsListViewModel
+@{
+    ViewData["Title"] = "My Subjects";
+    bool hasFilter = !string.IsNullOrEmpty(Model.CurrentSearch) || !string.IsNullOrEmpty(Model.CurrentSemester);
+}
+
+<div class="subpage-grid-layout">
+  <!-- Shared Sidebar Navigation -->
+  <aside class="subpage-sidebar-col">
+    <partial name="_Sidebar" />
+  </aside>
+
+  <!-- Main Subjects Workspace -->
+  <section class="subpage-main-col">
+    <!-- Header -->
+    <div class="page-header-row">
+      <div class="page-title-group">
+        <h1>My Subjects &amp; Courses</h1>
+        <p>Manage your enrolled semester courses, progress targets, and course-specific tasks</p>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-prominent" onclick="openCreateSubjectModal()" id="btn-add-subject-page">
+        <i data-lucide="book-plus"></i>
+        <span>Add Subject</span>
+      </button>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="tasks-filter-bar">
+      <form method="GET" action="/subjects" id="subjects-filter-form">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+          <div class="search-input-wrapper" style="max-width: 360px;">
+            <i data-lucide="search"></i>
+            <input type="text" name="search" class="search-input" placeholder="Search subjects or course codes..." value="@Model.CurrentSearch">
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <select name="semester" class="select-control" onchange="this.form.submit()">
+              <option value="">All Semesters</option>
+              @for (int sem = 1; sem <= 8; sem++)
+              {
+                <option value="@sem" selected="@(Model.CurrentSemester == sem.ToString() ? "selected" : null)">Semester @sem</option>
+              }
+            </select>
+
+            @if (hasFilter)
+            {
+              <a href="/subjects" class="btn btn-ghost" style="font-size: 0.8rem;">
+                <i data-lucide="x"></i> Clear
+              </a>
+            }
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Subjects Cards Grid -->
+    <div class="subjects-grid" id="subjects-cards-grid">
+      @if (Model.Subjects.Count > 0)
+      {
+        @foreach (var s in Model.Subjects)
+        {
+          <div class="subject-card" id="subject-card-@s.Id">
+            <div class="subject-accent-bar" style="background-color: @s.Color;"></div>
+
+            <div class="subject-card-header">
+              <div>
+                <span class="subject-semester-label">Semester @s.Semester</span>
+                <h3 class="subject-name-title">@s.SubjectName</h3>
+              </div>
+              @if (!string.IsNullOrEmpty(s.SubjectCode))
+              {
+                <span class="subject-code-pill" style="border-color: @(s.Color)44; color: @s.Color;">
+                  @s.SubjectCode
+                </span>
+              }
+            </div>
+
+            <!-- Task Statistics Counter -->
+            <div class="subject-stats-row">
+              <div>
+                <div class="sub-stat-num">@s.TotalTasks</div>
+                <div class="sub-stat-lbl">Total</div>
+              </div>
+              <div>
+                <div class="sub-stat-num" style="color: var(--color-success);">@s.CompletedTasks</div>
+                <div class="sub-stat-lbl">Completed</div>
+              </div>
+              <div>
+                <div class="sub-stat-num" style="color: var(--accent-lavender);">@s.PendingTasks</div>
+                <div class="sub-stat-lbl">Pending</div>
+              </div>
+            </div>
+
+            <!-- Animated Progress Bar -->
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--text-secondary);">
+                <span>Completion</span>
+                <span style="font-weight: 600; color: var(--text-primary);">@s.CompletionRate%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: @(s.CompletionRate)%; background-color: @s.Color;"></div>
+              </div>
+            </div>
+
+            <!-- Card Actions Footer -->
+            <div class="subject-card-footer">
+              <a href="/tasks?subject_id=@s.Id" class="btn btn-secondary" style="font-size: 0.76rem; padding: 5px 12px;">
+                <i data-lucide="list"></i> View Tasks (@s.TotalTasks)
+              </a>
+
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn-icon" onclick="openEditSubjectModal(@s.Id)" title="Edit Subject" aria-label="Edit subject">
+                  <i data-lucide="edit-2"></i>
+                </button>
+                <button type="button" class="btn-icon" onclick="confirmDeleteSubject(@s.Id, '@s.SubjectName.Replace("'", "\\'")', @s.TotalTasks)" title="Delete Subject" style="color: #f87171;" aria-label="Delete subject">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      }
+      else
+      {
+        <div class="empty-state-box" style="grid-column: 1 / -1; background-color: var(--card-primary); border-radius: var(--radius-xl); border: 1px solid var(--border-subtle);">
+          <div class="empty-state-icon">
+            <i data-lucide="book-x"></i>
+          </div>
+          <div class="empty-state-title">No Academic Subjects Found</div>
+          <div class="empty-state-desc">
+            @if (hasFilter)
+            {
+              <span>No course subjects match your filter criteria. Try resetting your filters.</span>
+            }
+            else
+            {
+              <span>You have not added any subjects yet. Click below to add your first enrolled course!</span>
+            }
+          </div>
+          <div style="display: flex; gap: 10px;">
+            @if (hasFilter)
+            {
+              <a href="/subjects" class="btn btn-secondary">Reset Filters</a>
+            }
+            <button type="button" class="btn btn-primary" onclick="openCreateSubjectModal()">
+              <i data-lucide="plus"></i> Add New Subject
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</div>
+
+@section Scripts {
+  <script src="~/js/subjects.js" asp-append-version="true"></script>
+}

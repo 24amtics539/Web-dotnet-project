@@ -1,0 +1,76 @@
+@model List<SubjectDto>
+@{
+    ViewData["Title"] = "Academic Calendar";
+}
+
+<div class="subpage-grid-layout">
+  <!-- Shared Sidebar Navigation -->
+  <aside class="subpage-sidebar-col">
+    <partial name="_Sidebar" />
+  </aside>
+
+  <!-- Main Calendar Workspace -->
+  <section class="subpage-main-col">
+    <!-- Header -->
+    <div class="page-header-row">
+      <div class="page-title-group">
+        <h1>Academic Calendar</h1>
+        <p>Interactive schedule of assignment deadlines, lab submissions, and exams</p>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button type="button" class="btn btn-primary" onclick="openCreateTaskModal()" id="btn-calendar-add-task">
+          <i data-lucide="plus"></i>
+          <span>Schedule Task</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Calendar Filters & Legend Bar -->
+    <div class="tasks-filter-bar" style="padding: 14px 20px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <label style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Filter Calendar:</label>
+          <select id="calendar-filter-subject" class="select-control" onchange="refreshCalendarEvents()">
+            <option value="">All Subjects</option>
+            @foreach (var s in Model)
+            {
+              <option value="@s.Id">@s.SubjectName @(!string.IsNullOrEmpty(s.SubjectCode) ? $"({s.SubjectCode})" : "")</option>
+            }
+          </select>
+
+          <select id="calendar-filter-status" class="select-control" onchange="refreshCalendarEvents()">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px; font-size: 0.78rem; color: var(--text-secondary); flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
+            <span>Completed</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #EF4444; display: inline-block;"></span>
+            <span>Overdue</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #B98AFF; display: inline-block;"></span>
+            <span>Course Subject Color</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FullCalendar Container Card -->
+    <div class="calendar-page-card">
+      <div id="calendar-root"></div>
+    </div>
+  </section>
+</div>
+
+@section Scripts {
+  <script src="~/js/calendar.js" asp-append-version="true"></script>
+}

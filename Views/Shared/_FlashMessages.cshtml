@@ -1,0 +1,41 @@
+@{
+    var success = TempData["Success"] as string;
+    var error = TempData["Error"] as string;
+    var info = TempData["Info"] as string;
+}
+
+@if (!string.IsNullOrEmpty(success) || !string.IsNullOrEmpty(error) || !string.IsNullOrEmpty(info))
+{
+    <div class="flash-messages-container">
+        @if (!string.IsNullOrEmpty(success))
+        {
+            <div class="flash-banner success">
+                <i data-lucide="check-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i>
+                <span>@success</span>
+                <button type="button" class="btn-ghost btn-icon" onclick="this.parentElement.remove()" aria-label="Close message">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="flash-banner error">
+                <i data-lucide="alert-triangle" style="width: 18px; height: 18px; flex-shrink: 0;"></i>
+                <span>@error</span>
+                <button type="button" class="btn-ghost btn-icon" onclick="this.parentElement.remove()" aria-label="Close message">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(info))
+        {
+            <div class="flash-banner info">
+                <i data-lucide="info" style="width: 18px; height: 18px; flex-shrink: 0;"></i>
+                <span>@info</span>
+                <button type="button" class="btn-ghost btn-icon" onclick="this.parentElement.remove()" aria-label="Close message">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+        }
+    </div>
+}

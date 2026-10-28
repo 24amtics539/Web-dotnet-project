@@ -1,0 +1,752 @@
+/* ===================================================================
+   CAMPUSDEADLINE — HIGH-PRECISION RESPONSIVE DESIGN SYSTEM
+   Breakpoints:
+     - Large Desktop (>= 1440px)
+     - Laptop / Standard Desktop (1024px - 1439px)
+     - Tablet (768px - 1023px)
+     - Mobile Landscape & Large Phones (480px - 767px)
+     - Small Mobile Phones (320px - 479px)
+   =================================================================== */
+
+/* ===================================================================
+   1. LARGE DESKTOP (>= 1440px)
+   =================================================================== */
+@media (min-width: 1440px) {
+  .dashboard-grid-layout {
+    grid-template-columns: minmax(0, 54fr) minmax(220px, 18fr) minmax(0, 28fr);
+    gap: 26px;
+  }
+
+  .app-container {
+    padding: 28px 36px;
+  }
+}
+
+/* ===================================================================
+   2. LAPTOP / STANDARD DESKTOP (1024px - 1439px)
+   =================================================================== */
+@media (max-width: 1439px) and (min-width: 1024px) {
+  .dashboard-grid-layout {
+    grid-template-columns: minmax(0, 52fr) minmax(210px, 20fr) minmax(0, 28fr);
+    gap: 20px;
+  }
+  
+  .app-container {
+    padding: 20px 22px;
+  }
+
+  .stat-card-value {
+    font-size: 1.9rem;
+  }
+
+  .panel-card,
+  .activity-heatmap-card,
+  .right-panel-card,
+  .chart-card,
+  .subject-card,
+  .task-card-full {
+    padding: 20px;
+    border-radius: 22px;
+  }
+}
+
+/* ===================================================================
+   3. TABLET (768px - 1023px)
+   =================================================================== */
+@media (max-width: 1023px) and (min-width: 768px) {
+  /* Show mobile topbar with hamburger drawer on tablet */
+  .mobile-topbar {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 14px 22px;
+    background-color: rgba(32, 31, 41, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .app-container {
+    padding: 20px 22px;
+  }
+
+  /* Reflow dashboard to balanced 2-column layout (Left Workspace + Right Workspace) */
+  .dashboard-grid-layout {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    gap: 20px;
+  }
+
+  .col-main-workspace {
+    order: 1;
+    grid-column: 1 / 2;
+    min-width: 0;
+  }
+
+  .col-right-workspace {
+    order: 2;
+    grid-column: 2 / 3;
+    position: static;
+    min-width: 0;
+  }
+
+  /* Hide middle sidebar in page flow: it is fully accessible via the topbar drawer */
+  .col-middle-sidebar {
+    display: none !important;
+  }
+
+  /* Subpages single column with hidden fixed sidebar */
+  .subpage-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .subpage-sidebar-col {
+    display: none !important;
+  }
+
+  .subpage-main-col {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* 2x2 Grid for Stats Cards */
+  .stats-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* 2 Columns for Tasks Cards Grid */
+  .tasks-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* 2 Columns for Subjects Grid */
+  .subjects-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  /* Progress & Analytics on Tablet */
+  .analytics-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .analytics-actions-toolbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .analytics-charts-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .insights-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .quick-actions-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+}
+
+/* ===================================================================
+   4. ALL MOBILE VIEWPORTS (<= 767px)
+   =================================================================== */
+@media (max-width: 767px) {
+  /* Prevent iOS automatic zoom on input focus */
+  button, input, select, textarea {
+    font-size: 16px !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-topbar {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: max(12px, env(safe-area-inset-top)) 16px 12px 16px;
+    background-color: rgba(32, 31, 41, 0.95);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .app-container {
+    padding: 14px 12px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
+  /* Dashboard: Stack everything cleanly into a single vertical feed */
+  .dashboard-grid-layout {
+    grid-template-columns: 1fr !important;
+    gap: 18px;
+  }
+
+  .col-main-workspace {
+    grid-column: 1 / -1;
+    order: 1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .col-right-workspace {
+    grid-column: 1 / -1;
+    order: 2;
+    width: 100%;
+    position: static;
+    min-width: 0;
+  }
+
+  /* Hide middle sidebar in page flow: it is fully accessible via the topbar drawer */
+  .col-middle-sidebar {
+    display: none !important;
+  }
+
+  /* Subpages single column with hidden fixed sidebar */
+  .subpage-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .subpage-sidebar-col {
+    display: none !important;
+  }
+
+  .subpage-main-col {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Native Mobile Horizontal Scroll Bar for Quick Actions */
+  .quick-actions-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 6px;
+    margin-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .quick-actions-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .quick-actions-bar .btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 9px 14px;
+    font-size: 0.82rem;
+    border-radius: var(--radius-md);
+  }
+
+  /* Heatmap Panel on Mobile */
+  .activity-heatmap-card {
+    padding: 16px 14px;
+    border-radius: 20px;
+  }
+
+  .heatmap-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .heatmap-meta {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.76rem;
+  }
+
+  .heatmap-grid-scroll-wrapper {
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-lavender-subtle) transparent;
+  }
+
+  .heatmap-matrix {
+    gap: 5px;
+    min-width: 520px;
+  }
+
+  .heatmap-cell {
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+  }
+
+  .heatmap-legend-container {
+    justify-content: flex-start;
+    font-size: 0.72rem;
+    flex-wrap: wrap;
+  }
+
+  /* Compact Task Items on Mobile */
+  .compact-task-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .task-item-left {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .task-item-left .task-title {
+    font-size: 0.88rem;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .task-meta-tags {
+    gap: 6px;
+    font-size: 0.7rem;
+  }
+
+  .task-item-right {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-white-faint);
+  }
+
+  /* Prominent Task Button */
+  .btn-prominent {
+    width: 100%;
+    padding: 13px 18px;
+    font-size: 0.94rem;
+  }
+
+  /* Page Headers on Mobile */
+  .page-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .page-header-row .page-title-group h1 {
+    font-size: 1.45rem;
+  }
+
+  .page-header-row .page-title-group p {
+    font-size: 0.8rem;
+  }
+
+  .page-header-row .btn-prominent {
+    width: 100%;
+  }
+
+  /* Tasks Filter Controls on Mobile */
+  .tasks-filter-bar {
+    padding: 14px;
+    border-radius: 20px;
+    gap: 12px;
+  }
+
+  .filter-row-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .search-input-wrapper {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .search-input {
+    font-size: 16px !important;
+    padding: 10px 14px 10px 38px;
+  }
+
+  /* Filter Dropdowns Grid on Mobile */
+  .filter-row-dropdowns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  .select-control {
+    width: 100%;
+    font-size: 16px !important;
+    padding: 9px 10px;
+  }
+
+  /* Horizontal Scrollable Quick Filter Pills */
+  .quick-filter-pills {
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    gap: 6px;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .quick-filter-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .quick-pill {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
+
+  /* Tasks Cards Grid */
+  .tasks-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .task-card-full {
+    padding: 18px 16px;
+    border-radius: 20px;
+  }
+
+  .task-card-title {
+    font-size: 0.98rem;
+  }
+
+  .task-card-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  /* Subjects Cards Grid */
+  .subjects-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .subject-card {
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+
+  /* FullCalendar Toolbar on Mobile */
+  .calendar-page-card {
+    padding: 16px 12px;
+    border-radius: 20px;
+  }
+
+  .fc .fc-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .fc .fc-toolbar-chunk {
+    display: flex !important;
+    justify-content: center !important;
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 1.15rem !important;
+    text-align: center;
+  }
+
+  .fc .fc-button {
+    padding: 6px 11px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .fc-col-header-cell-cushion {
+    font-size: 0.74rem !important;
+    padding: 4px 0 !important;
+  }
+
+  .fc-daygrid-day-number {
+    font-size: 0.76rem !important;
+    padding: 4px !important;
+  }
+
+  .fc-event {
+    font-size: 0.72rem !important;
+    padding: 2px 4px !important;
+  }
+
+  /* Progress & Analytics on Mobile */
+  .analytics-actions-toolbar {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .analytics-export-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .analytics-export-group .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 0.84rem;
+  }
+
+  .analytics-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .analytics-charts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .chart-card {
+    padding: 18px 14px;
+    border-radius: 20px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .chart-container-wrapper {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    min-height: 220px;
+    max-height: 260px;
+    overflow: hidden;
+  }
+
+  .insights-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .insight-item {
+    padding: 14px 12px;
+    word-break: break-word;
+  }
+
+  /* Modals on Mobile Viewports */
+  .modal-backdrop {
+    padding: 10px;
+  }
+
+  .modal-dialog {
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    padding: 20px 16px;
+    border-radius: 20px;
+    gap: 16px;
+  }
+
+  .modal-header .modal-title {
+    font-size: 1.15rem;
+  }
+
+  /* Force modal two-column form grids into single column on mobile */
+  .modal-dialog [style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+
+  /* Auth Cards on Mobile */
+  .auth-card {
+    padding: 28px 20px;
+    border-radius: 22px;
+  }
+
+  .auth-title {
+    font-size: 1.4rem;
+  }
+}
+
+/* ===================================================================
+   5. MOBILE LANDSCAPE & PHONES (480px - 767px)
+   =================================================================== */
+@media (min-width: 480px) and (max-width: 767px) {
+  .stats-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card-value {
+    font-size: 1.85rem;
+  }
+}
+
+/* ===================================================================
+   6. SMALL MOBILE PHONES (< 480px)
+   =================================================================== */
+@media (max-width: 479px) {
+  .app-container {
+    padding: 12px 10px;
+  }
+
+  /* Single Column Stats for Tiny Screens */
+  .stats-cards-grid,
+  .analytics-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .analytics-export-group {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 16px 14px;
+    border-radius: 18px;
+  }
+
+  .stat-card-value {
+    font-size: 1.7rem;
+  }
+
+  .panel-card,
+  .activity-heatmap-card,
+  .right-panel-card,
+  .chart-card,
+  .subject-card,
+  .task-card-full {
+    padding: 16px 14px;
+    border-radius: 18px;
+  }
+
+  .filter-row-dropdowns {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-logo-inline {
+    font-size: 1.1rem;
+  }
+
+  .logo-badge {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* ===================================================================
+   7. OFF-CANVAS MOBILE NAVIGATION DRAWER
+   =================================================================== */
+.mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(14, 12, 20, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 998;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.mobile-drawer-backdrop.active {
+  display: block;
+  opacity: 1;
+}
+
+.mobile-drawer-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 300px;
+  max-width: 86vw;
+  background-color: var(--card-primary);
+  border-right: 1px solid var(--border-subtle);
+  z-index: 999;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: max(16px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)) 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: 16px 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.mobile-drawer-panel.active {
+  transform: translateX(0);
+}
+
+.mobile-drawer-close {
+  align-self: flex-end;
+  background: var(--card-secondary);
+  border: 1px solid var(--border-white-faint);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.mobile-drawer-close:hover {
+  color: #fff;
+  border-color: var(--border-subtle);
+}
+
+/* Remove card nesting inside drawer */
+.mobile-drawer-panel .sidebar-panel {
+  border: none;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ===================================================================
+   8. ACCESSIBILITY: REDUCED MOTION PREFERENCE
+   =================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,211 @@
+@model TasksListViewModel
+@{
+    ViewData["Title"] = "My Tasks";
+    var filters = Model.CurrentFilters;
+    bool hasActiveFilters = !string.IsNullOrEmpty(filters.Search) ||
+                            filters.SubjectId.HasValue ||
+                            !string.IsNullOrEmpty(filters.TaskType) ||
+                            !string.IsNullOrEmpty(filters.Priority) ||
+                            !string.IsNullOrEmpty(filters.Status) ||
+                            !string.IsNullOrEmpty(filters.Filter);
+}
+
+<div class="subpage-grid-layout">
+  <!-- Shared Sidebar Navigation -->
+  <aside class="subpage-sidebar-col">
+    <partial name="_Sidebar" />
+  </aside>
+
+  <!-- Main Tasks Workspace -->
+  <section class="subpage-main-col">
+    <!-- Page Header Row -->
+    <div class="page-header-row">
+      <div class="page-title-group">
+        <h1>My Academic Tasks</h1>
+        <p>Organize, track, and complete your college assignments, labs, exams, and milestones</p>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-prominent" onclick="openCreateTaskModal()" id="btn-create-task-page">
+        <i data-lucide="plus-circle"></i>
+        <span>Create Task</span>
+      </button>
+    </div>
+
+    <!-- Filter & Search Controls Bar -->
+    <div class="tasks-filter-bar">
+      <form method="GET" action="/tasks" id="tasks-filter-form">
+        <div class="filter-row-top">
+          <div class="search-input-wrapper">
+            <i data-lucide="search"></i>
+            <input type="text" name="search" id="task-search-input" class="search-input" 
+                   placeholder="Search tasks by title or keywords..." 
+                   value="@filters.Search">
+          </div>
+
+          <div class="filter-row-dropdowns">
+            <!-- Subject Filter -->
+            <select name="subject_id" class="select-control" onchange="this.form.submit()">
+              <option value="">All Subjects</option>
+              @foreach (var s in Model.Subjects)
+              {
+                <option value="@s.Id" selected="@(filters.SubjectId == s.Id ? "selected" : null)">
+                  @s.SubjectName @(!string.IsNullOrEmpty(s.SubjectCode) ? $"({s.SubjectCode})" : "")
+                </option>
+              }
+            </select>
+
+            <!-- Task Type Filter -->
+            <select name="task_type" class="select-control" onchange="this.form.submit()">
+              <option value="">All Categories</option>
+              @foreach (var tType in Model.TaskTypes)
+              {
+                <option value="@tType" selected="@(filters.TaskType == tType ? "selected" : null)">
+                  @tType
+                </option>
+              }
+            </select>
+
+            <!-- Priority Filter -->
+            <select name="priority" class="select-control" onchange="this.form.submit()">
+              <option value="">All Priorities</option>
+              @foreach (var prio in Model.Priorities)
+              {
+                <option value="@prio" selected="@(filters.Priority == prio ? "selected" : null)">
+                  @(char.ToUpper(prio[0]) + prio.Substring(1)) Priority
+                </option>
+              }
+            </select>
+
+            <!-- Status Filter -->
+            <select name="status" class="select-control" onchange="this.form.submit()">
+              <option value="">All Statuses</option>
+              @foreach (var stat in Model.Statuses)
+              {
+                <option value="@stat" selected="@(filters.Status == stat ? "selected" : null)">
+                  @stat.Replace('_', ' ')
+                </option>
+              }
+            </select>
+
+            <!-- Sort Option -->
+            <select name="sort_by" class="select-control" onchange="this.form.submit()">
+              <option value="deadline_asc" selected="@(filters.SortBy == "deadline_asc" ? "selected" : null)">Deadline (Nearest First)</option>
+              <option value="deadline_desc" selected="@(filters.SortBy == "deadline_desc" ? "selected" : null)">Deadline (Furthest First)</option>
+              <option value="priority_high" selected="@(filters.SortBy == "priority_high" ? "selected" : null)">Priority (High to Low)</option>
+              <option value="created_desc" selected="@(filters.SortBy == "created_desc" ? "selected" : null)">Created (Newest First)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Quick Filters & Active Pills -->
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
+          <div class="quick-filter-pills">
+            <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">QUICK:</span>
+            <a href="/tasks" class="quick-pill @(string.IsNullOrEmpty(filters.Filter) && string.IsNullOrEmpty(filters.Status) ? "active" : "")">All (@Model.Stats.TotalTasks)</a>
+            <a href="/tasks?filter=upcoming" class="quick-pill @(filters.Filter == "upcoming" ? "active" : "")">Upcoming (@Model.Stats.PendingTasks)</a>
+            <a href="/tasks?filter=overdue" class="quick-pill @(filters.Filter == "overdue" ? "active" : "")" style="@(Model.Stats.OverdueTasks > 0 ? "color: #f87171;" : "")">Overdue (@Model.Stats.OverdueTasks)</a>
+            <a href="/tasks?status=completed" class="quick-pill @(filters.Status == "completed" ? "active" : "")">Completed (@Model.Stats.CompletedTasks)</a>
+          </div>
+
+          @if (hasActiveFilters)
+          {
+            <a href="/tasks" class="btn btn-ghost" style="font-size: 0.78rem; padding: 4px 10px;">
+              <i data-lucide="x"></i> Clear All Filters
+            </a>
+          }
+        </div>
+      </form>
+    </div>
+
+    <!-- Task Cards Grid -->
+    <div class="tasks-cards-grid" id="tasks-cards-container">
+      @if (Model.Tasks.Count > 0)
+      {
+        @foreach (var task in Model.Tasks)
+        {
+          <div class="task-card-full @(task.Status == "completed" ? "completed" : "")" id="task-card-@task.Id">
+            <div class="task-card-top-row">
+              <span class="badge-tag badge-subject" style="border-left: 3px solid @task.SubjectColor;">
+                @(task.SubjectCode ?? task.SubjectName)
+              </span>
+
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="badge-tag badge-priority @task.Priority">@task.Priority</span>
+                <span class="badge-tag badge-type">@task.TaskType</span>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="task-card-title">@task.Title</h3>
+              @if (!string.IsNullOrEmpty(task.Description))
+              {
+                <p class="task-card-desc">@task.Description</p>
+              }
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+              <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="calendar" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                <span>@task.DueDateFormatted</span>
+              </div>
+              <span class="countdown-pill @task.Urgency">@task.Countdown</span>
+            </div>
+
+            <div class="task-card-footer">
+              <!-- Quick Status Selector -->
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <select class="select-control" style="font-size: 0.76rem; padding: 4px 8px;" onchange="updateTaskStatusDirect(@task.Id, this.value)">
+                  <option value="pending" selected="@(task.Status == "pending" ? "selected" : null)">Pending</option>
+                  <option value="in_progress" selected="@(task.Status == "in_progress" ? "selected" : null)">In Progress</option>
+                  <option value="completed" selected="@(task.Status == "completed" ? "selected" : null)">Completed</option>
+                </select>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="task-actions-group">
+                <button type="button" class="btn-icon" onclick="openEditTaskModal(@task.Id)" title="Edit Task" aria-label="Edit task">
+                  <i data-lucide="edit-2"></i>
+                </button>
+                <button type="button" class="btn-icon" onclick="confirmDeleteTask(@task.Id, '@task.Title.Replace("'", "\\'")')" title="Delete Task" style="color: #f87171;" aria-label="Delete task">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      }
+      else
+      {
+        <div class="empty-state-box" style="grid-column: 1 / -1; background-color: var(--card-primary); border-radius: var(--radius-xl); border: 1px solid var(--border-subtle);">
+          <div class="empty-state-icon">
+            <i data-lucide="inbox"></i>
+          </div>
+          <div class="empty-state-title">No Academic Tasks Found</div>
+          <div class="empty-state-desc">
+            @if (hasActiveFilters)
+            {
+              <span>No tasks match your selected search or filter criteria. Try resetting your filters.</span>
+            }
+            else
+            {
+              <span>You have not created any academic tasks yet. Start by creating your first task!</span>
+            }
+          </div>
+          <div style="display: flex; gap: 10px;">
+            @if (hasActiveFilters)
+            {
+              <a href="/tasks" class="btn btn-secondary">Reset Filters</a>
+            }
+            <button type="button" class="btn btn-primary" onclick="openCreateTaskModal()">
+              <i data-lucide="plus"></i> Add New Task
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</div>
+
+@section Scripts {
+  <script src="~/js/tasks.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,79 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var requestToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="@requestToken">
+  <title>@(ViewData["Title"] != null ? $"{ViewData["Title"]} — CampusDeadline" : "CampusDeadline — Student Academic OS")</title>
+
+  <!-- Google Fonts: Inter & Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js 4 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- FullCalendar 6 -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+  <!-- Custom Stylesheets -->
+  <link rel="stylesheet" href="~/css/style.css" asp-append-version="true">
+  <link rel="stylesheet" href="~/css/responsive.css" asp-append-version="true">
+  @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+  <div class="app-wrapper">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+      <!-- Mobile Topbar Header -->
+      <partial name="_Topbar" />
+
+      <!-- Mobile Off-Canvas Drawer -->
+      <div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop"></div>
+      <div class="mobile-drawer-panel" id="mobile-drawer-panel">
+        <button type="button" class="mobile-drawer-close" id="btn-close-mobile-drawer" aria-label="Close navigation">
+          <i data-lucide="x"></i>
+        </button>
+        <partial name="_Sidebar" />
+      </div>
+    }
+
+    <main class="app-container">
+      <partial name="_FlashMessages" />
+      @RenderBody()
+    </main>
+  </div>
+
+  @if (User.Identity?.IsAuthenticated == true)
+  {
+    <!-- Global Task, Subject & Confirm Modals -->
+    <partial name="_TaskModal" />
+    <partial name="_SubjectModal" />
+    <partial name="_ConfirmModal" />
+  }
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Global Application Scripts -->
+  <script src="~/js/app.js" asp-append-version="true"></script>
+  @await RenderSectionAsync("Scripts", required: false)
+
+  <script>
+    // Initialize Lucide icons on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>

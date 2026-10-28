@@ -1,0 +1,391 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="dashboard-grid-layout">
+  
+  <!-- ==========================================
+       COLUMN 1: LEFT/MAIN WORKSPACE (~54%)
+       ========================================== -->
+  <section class="col-main-workspace" aria-label="Main Academic Workspace">
+    
+    <!-- Quick Actions Bar -->
+    <div class="quick-actions-bar">
+      <button type="button" class="btn btn-primary" onclick="openCreateTaskModal()">
+        <i data-lucide="plus-circle"></i>
+        <span>Create Task</span>
+      </button>
+      <button type="button" class="btn btn-secondary" onclick="openCreateSubjectModal()">
+        <i data-lucide="book-plus"></i>
+        <span>Add Subject</span>
+      </button>
+      <a href="/tasks" class="btn btn-secondary">
+        <i data-lucide="list-todo"></i>
+        <span>View All Tasks</span>
+      </a>
+      <a href="/calendar" class="btn btn-secondary">
+        <i data-lucide="calendar"></i>
+        <span>Open Calendar</span>
+      </a>
+      <a href="/progress" class="btn btn-secondary">
+        <i data-lucide="trending-up"></i>
+        <span>View Progress</span>
+      </a>
+    </div>
+
+    <!-- A. Academic Activity Heatmap Panel -->
+    <div class="activity-heatmap-card" id="academic-activity-panel">
+      <div class="heatmap-header">
+        <div class="panel-title-group">
+          <h2 class="panel-title">
+            <i data-lucide="flame" style="color: var(--accent-lavender)"></i>
+            Academic Activity Heatmap
+          </h2>
+          <span class="panel-subtitle">Daily engagement, submissions, and task updates across recent weeks</span>
+        </div>
+        <div class="heatmap-meta">
+          <span>Active Days: <strong class="heatmap-stat-highlight">@Model.Heatmap.TotalActiveDays</strong></span>
+          <span>Actions: <strong class="heatmap-stat-highlight">@Model.Heatmap.TotalActions</strong></span>
+          <select id="heatmap-range-select" class="select-control" style="padding: 4px 10px; font-size: 0.76rem;" onchange="updateHeatmapWeeks(this.value)">
+            <option value="12" selected>Last 12 Weeks</option>
+            <option value="8">Last 8 Weeks</option>
+            <option value="4">Last 4 Weeks</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="heatmap-grid-scroll-wrapper">
+        <div class="heatmap-matrix" id="heatmap-matrix-container">
+          @for (int w = 0; w < Model.Heatmap.Weeks.Count; w++)
+          {
+            var week = Model.Heatmap.Weeks[w];
+            <div class="heatmap-column" data-week-index="@w">
+              @foreach (var day in week)
+              {
+                <div class="heatmap-cell level-@day.Level" 
+                     data-date="@day.Date"
+                     data-formatted="@day.FormattedDate"
+                     data-count="@day.Count"
+                     title="@day.FormattedDate: @day.Count academic action@(day.Count != 1 ? "s" : "")">
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="heatmap-legend-container">
+        <span>Less activity</span>
+        <div class="heatmap-legend-swatches">
+          <div class="legend-swatch level-0" title="0 actions"></div>
+          <div class="legend-swatch level-1" title="1 action"></div>
+          <div class="legend-swatch level-2" title="2 actions"></div>
+          <div class="legend-swatch level-3" title="3-4 actions"></div>
+          <div class="legend-swatch level-4" title="5+ actions"></div>
+        </div>
+        <span>More activity</span>
+      </div>
+    </div>
+
+    <!-- B. Four Statistics Cards -->
+    <div class="stats-cards-grid">
+      <!-- 1. Pending Tasks Card -->
+      <a href="/tasks?status=pending" class="stat-card" id="stat-card-pending">
+        <div class="stat-card-top">
+          <span class="stat-card-label">Pending Tasks</span>
+          <div class="stat-icon-wrapper">
+            <i data-lucide="clock"></i>
+          </div>
+        </div>
+        <div class="stat-card-value">
+          <span>@Model.Stats.PendingTasks</span>
+          <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: normal;">tasks</span>
+        </div>
+        <div class="stat-card-subtext">
+          <span class="stat-badge-pill info">@Model.Stats.Upcoming7d upcoming in 7 days</span>
+        </div>
+      </a>
+
+      <!-- 2. Completed Tasks Card -->
+      <a href="/tasks?status=completed" class="stat-card" id="stat-card-completed">
+        <div class="stat-card-top">
+          <span class="stat-card-label">Completed Tasks</span>
+          <div class="stat-icon-wrapper" style="color: var(--color-success);">
+            <i data-lucide="check-circle-2"></i>
+          </div>
+        </div>
+        <div class="stat-card-value">
+          <span>@Model.Stats.CompletedTasks</span>
+          <span style="font-size: 1rem; color: var(--color-success); font-weight: 600;">@Model.Stats.CompletionPercentage%</span>
+        </div>
+        <div class="stat-card-subtext">
+          <span class="stat-badge-pill success">Overall completion rate</span>
+        </div>
+      </a>
+
+      <!-- 3. Upcoming Deadlines Card -->
+      <a href="/tasks?filter=upcoming" class="stat-card" id="stat-card-upcoming">
+        <div class="stat-card-top">
+          <span class="stat-card-label">Upcoming Deadlines</span>
+          <div class="stat-icon-wrapper" style="color: var(--accent-lavender);">
+            <i data-lucide="calendar"></i>
+          </div>
+        </div>
+        <div class="stat-card-value">
+          <span>@Model.Stats.Upcoming7d</span>
+          <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: normal;">due soon</span>
+        </div>
+        <div class="stat-card-subtext">
+          @if (Model.Stats.NearestDeadline != null)
+          {
+            <span style="color: var(--accent-lavender); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              Nearest: @Model.Stats.NearestDeadline.Title (@Model.Stats.NearestDeadline.Countdown)
+            </span>
+          }
+          else
+          {
+            <span>No upcoming deadlines in 7 days</span>
+          }
+        </div>
+      </a>
+
+      <!-- 4. Overdue Tasks Card -->
+      <a href="/tasks?filter=overdue" class="stat-card" id="stat-card-overdue">
+        <div class="stat-card-top">
+          <span class="stat-card-label">Overdue Tasks</span>
+          <div class="stat-icon-wrapper" style="color: @(Model.Stats.OverdueTasks > 0 ? "var(--color-danger)" : "var(--color-success)");">
+            <i data-lucide="alert-triangle"></i>
+          </div>
+        </div>
+        <div class="stat-card-value" style="color: @(Model.Stats.OverdueTasks > 0 ? "var(--color-danger)" : "var(--text-primary)");">
+          <span>@Model.Stats.OverdueTasks</span>
+          <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: normal;">tasks</span>
+        </div>
+        <div class="stat-card-subtext">
+          @if (Model.Stats.OverdueTasks > 0)
+          {
+            <span class="stat-badge-pill warning">Requires immediate submission</span>
+          }
+          else
+          {
+            <span class="stat-badge-pill success">All caught up! Zero overdue</span>
+          }
+        </div>
+      </a>
+    </div>
+
+    <!-- C. Academic Progress Chart -->
+    <div class="panel-card" id="dashboard-chart-panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <h2 class="panel-title">
+            <i data-lucide="bar-chart-3" style="color: var(--accent-lavender)"></i>
+            Academic Task Distribution
+          </h2>
+          <span class="panel-subtitle">Live breakdown of completed, in-progress, pending, and overdue records</span>
+        </div>
+        <a href="/progress" class="btn btn-secondary btn-icon" title="View Full Analytics">
+          <i data-lucide="arrow-up-right"></i>
+        </a>
+      </div>
+      <div style="height: 220px; position: relative;">
+        <canvas id="dashboardProgressChart"></canvas>
+      </div>
+    </div>
+
+    <!-- D. Recent & Upcoming Tasks -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <h2 class="panel-title">
+            <i data-lucide="check-square" style="color: var(--accent-lavender)"></i>
+            Upcoming Academic Deadlines
+          </h2>
+          <span class="panel-subtitle">Sorted by nearest submission deadline</span>
+        </div>
+        <a href="/tasks" class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px;">
+          View All Tasks
+        </a>
+      </div>
+
+      <div class="tasks-list-compact" id="dashboard-tasks-list">
+        @if (Model.UpcomingTasks.Count > 0)
+        {
+          @foreach (var t in Model.UpcomingTasks)
+          {
+            <div class="compact-task-item @(t.Status == "completed" ? "completed" : "")" id="dash-task-row-@t.Id">
+              <div class="task-item-left">
+                <button type="button" class="btn-check-task" 
+                        title="Mark Complete" 
+                        onclick="toggleTaskStatus(@t.Id, 'completed')"
+                        aria-label="Mark task as complete">
+                  <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                </button>
+                <div class="task-info-block">
+                  <div class="task-title" title="@t.Title">@t.Title</div>
+                  <div class="task-meta-tags">
+                    <span class="badge-tag badge-subject" style="border-left: 3px solid @t.SubjectColor;">
+                      @(t.SubjectCode ?? t.SubjectName)
+                    </span>
+                    <span class="badge-tag badge-type">@t.TaskType</span>
+                    <span class="badge-tag badge-priority @t.Priority">@t.Priority</span>
+                    <span style="color: var(--text-muted);">@t.DueDateFormatted</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="task-item-right">
+                <span class="countdown-pill @t.Urgency">@t.Countdown</span>
+                <button type="button" class="btn-icon" onclick="openEditTaskModal(@t.Id)" title="Edit Task" aria-label="Edit task">
+                  <i data-lucide="edit-3"></i>
+                </button>
+              </div>
+            </div>
+          }
+        }
+        else
+        {
+          <div class="empty-state-box">
+            <div class="empty-state-icon">
+              <i data-lucide="check-circle"></i>
+            </div>
+            <div class="empty-state-title">No Pending Academic Deadlines</div>
+            <div class="empty-state-desc">You're all caught up! Click below to create your next assignment, exam, or project.</div>
+            <button type="button" class="btn btn-primary" onclick="openCreateTaskModal()">
+              <i data-lucide="plus"></i> Add New Task
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       COLUMN 2: MIDDLE SIDEBAR (~18%)
+       ========================================== -->
+  <section class="col-middle-sidebar" aria-label="Middle Navigation Sidebar">
+    <partial name="_Sidebar" />
+  </section>
+
+  <!-- ==========================================
+       COLUMN 3: RIGHT WORKSPACE (~28%)
+       ========================================== -->
+  <section class="col-right-workspace" aria-label="Right Workspace Tools">
+    
+    <!-- Prominent Purple Button: Create Task -->
+    <button type="button" class="btn btn-primary btn-block btn-prominent" onclick="openCreateTaskModal()" id="btn-prominent-create-task">
+      <i data-lucide="plus-circle" style="width: 20px; height: 20px;"></i>
+      <span>+ New Academic Task</span>
+    </button>
+
+    <!-- Interactive Mini Monthly Calendar -->
+    <div class="right-panel-card">
+      <div class="mini-calendar-widget">
+        <div class="mini-cal-header">
+          <div class="mini-cal-month-title" id="mini-cal-title">Month Year</div>
+          <div style="display: flex; gap: 4px;">
+            <button type="button" class="btn-icon" id="mini-cal-prev" style="width: 28px; height: 28px;" aria-label="Previous Month">
+              <i data-lucide="chevron-left" style="width: 14px; height: 14px;"></i>
+            </button>
+            <button type="button" class="btn-icon" id="mini-cal-next" style="width: 28px; height: 28px;" aria-label="Next Month">
+              <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="mini-cal-days-header">
+          <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
+
+        <div class="mini-cal-days-grid" id="mini-cal-days-grid">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+      <div style="font-size: 0.74rem; color: var(--text-muted); text-align: center; margin-top: 8px;">
+        <i data-lucide="info" style="width: 12px; height: 12px; vertical-align: middle;"></i>
+        Click any date to schedule a new task
+      </div>
+    </div>
+
+    <!-- Upcoming Exam Reminders Panel -->
+    <div class="right-panel-card">
+      <div class="panel-header" style="margin-bottom: 12px;">
+        <div class="panel-title" style="font-size: 1rem;">
+          <i data-lucide="award" style="color: var(--accent-lavender);"></i>
+          Exam Reminders
+        </div>
+        <span class="badge-tag badge-priority high">@Model.UpcomingExams.Count Scheduled</span>
+      </div>
+
+      <div class="exam-reminders-list">
+        @if (Model.UpcomingExams.Count > 0)
+        {
+          @foreach (var ex in Model.UpcomingExams)
+          {
+            <div class="exam-card-compact" style="border-left-color: @ex.SubjectColor;">
+              <div class="exam-card-top">
+                <span class="exam-title">@ex.Title</span>
+                <span class="exam-countdown-badge">
+                  <i data-lucide="clock" style="width: 12px; height: 12px;"></i>
+                  @ex.Countdown
+                </span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--text-muted);">
+                <span>@(ex.SubjectCode ?? ex.SubjectName)</span>
+                <span>@ex.DueDateFormatted</span>
+              </div>
+            </div>
+          }
+        }
+        else
+        {
+          <div style="padding: 16px 8px; text-align: center; color: var(--text-muted); font-size: 0.82rem;">
+            No upcoming examinations scheduled.
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- In-Progress Submissions -->
+    @if (Model.InProgressTasks.Count > 0)
+    {
+      <div class="right-panel-card">
+        <div class="panel-header" style="margin-bottom: 10px;">
+          <div class="panel-title" style="font-size: 1rem;">
+            <i data-lucide="loader" style="color: var(--color-info);"></i>
+            In Progress
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          @foreach (var ipt in Model.InProgressTasks)
+          {
+            <div style="padding: 10px 12px; background-color: var(--card-secondary); border-radius: var(--radius-md); font-size: 0.82rem;">
+              <div style="font-weight: 600; color: var(--text-primary);">@ipt.Title</div>
+              <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.74rem; margin-top: 4px;">
+                <span>@(ipt.SubjectCode ?? ipt.SubjectName)</span>
+                <span style="color: var(--color-info);">@ipt.Countdown</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  </section>
+</div>
+
+@section Scripts {
+  <script src="~/js/dashboard.js" asp-append-version="true"></script>
+  <script>
+    // Initialize Dashboard chart with real backend counts
+    document.addEventListener('DOMContentLoaded', () => {
+      initDashboardProgressChart({
+        completed: @Model.Stats.CompletedTasks,
+        pending: @Model.Stats.PendingTasks,
+        overdue: @Model.Stats.OverdueTasks,
+        total: @Model.Stats.TotalTasks
+      });
+    });
+  </script>
+}

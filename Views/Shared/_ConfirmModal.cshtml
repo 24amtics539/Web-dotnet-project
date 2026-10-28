@@ -1,0 +1,20 @@
+<!-- Generic Confirmation Dialog Modal -->
+<div class="modal-backdrop" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+  <div class="modal-dialog" style="max-width: 440px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="confirm-modal-title">Confirm Action</h2>
+      <button type="button" class="modal-close-btn" onclick="closeConfirmModal()" aria-label="Close dialog">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <div style="font-size: 0.92rem; color: var(--text-secondary);" id="confirm-modal-message">
+      Are you sure you want to proceed? This action cannot be undone.
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="confirm-modal-submit-btn">
+        <i data-lucide="trash-2"></i> Confirm Delete
+      </button>
+    </div>
+  </div>
+</div>
